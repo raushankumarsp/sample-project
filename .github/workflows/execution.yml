@@ -33,7 +33,7 @@ jobs:
             msodbcsql18 \
             mssql-tools18
           echo "/opt/mssql-tools18/bin" >> $GITHUB_PATH
-          sqlcmd -?
+          /opt/mssql-tools18/bin/sqlcmd -?
       # ==========================================
       # Parse Issue Form
       # ==========================================
