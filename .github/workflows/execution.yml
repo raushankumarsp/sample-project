@@ -30,7 +30,8 @@ jobs:
             gnupg \
             apt-transport-https
           curl https://packages.microsoft.com/keys/microsoft.asc \
-            | sudo gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg
+            | gpg --dearmor --batch --yes \
+            | sudo tee  /usr/share/keyrings/microsoft-prod.gpg > /dev/null
           curl https://packages.microsoft.com/config/ubuntu/22.04/prod.list \
             | sudo tee /etc/apt/sources.list.d/msprod.list
           sudo apt-get update
