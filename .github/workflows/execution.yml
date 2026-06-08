@@ -1,0 +1,149 @@
+name: Execute Azure SQL Query
+
+on:
+  issues:
+    types:
+      - labeled
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+
+  execute-query:
+
+    # RUN ONLY IF LABEL = DB-QUERY
+    if: contains(github.event.issue.labels.*.name, 'DB-QUERY')
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      - name: Install SQLCMD
+        run: |
+          sudo ACCEPT_EULA=Y apt-get update
+          sudo ACCEPT_EULA=Y apt-get install -y \
+            curl \
+            gnupg \
+            apt-transport-https
+          curl https://packages.microsoft.com/keys/microsoft.asc \
+            | sudo gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg
+          curl https://packages.microsoft.com/config/ubuntu/22.04/prod.list \
+            | sudo tee /etc/apt/sources.list.d/msprod.list
+          sudo apt-get update
+          sudo ACCEPT_EULA=Y apt-get install -y \
+            mssql-tools18 \
+            unixodbc-dev
+          echo "/opt/mssql-tools18/bin" >> $GITHUB_PATH
+
+      # ==========================================
+      # Parse Issue Form
+      # ==========================================
+
+      - name: Parse Issue
+        id: parse
+        shell: bash
+        run: |
+          BODY="${{ github.event.issue.body }}"
+          echo "================================="
+          echo "$BODY"
+          echo "================================="
+          SQL_SERVER=$(echo "$BODY" \
+            | grep "SQL Server URL" -A1 \
+            | tail -n1 \
+            | xargs)
+          DB_NAME=$(echo "$BODY" \
+            | grep "Database Name" -A1 \
+            | tail -n1 \
+            | xargs)
+          QUERY=$(echo "$BODY" \
+            | awk '/SQL Query/{flag=1;next}/###/{flag=0}flag')
+          echo "sql_server=$SQL_SERVER" >> $GITHUB_OUTPUT
+          echo "db_name=$DB_NAME" >> $GITHUB_OUTPUT
+          echo "query<<EOF" >> $GITHUB_OUTPUT
+          echo "$QUERY" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      # ==========================================
+      # Execute SQL Query
+      # ==========================================
+
+      - name: Execute SQL Query
+        id: execute
+        shell: bash
+        run: |
+          mkdir -p output
+          echo "Executing Query..."
+          sqlcmd \
+            -S "${{ steps.parse.outputs.sql_server }}" \
+            -d "${{ steps.parse.outputs.db_name }}" \
+            -U "${{ secrets.SQL_USERNAME }}" \
+            -P "${{ secrets.SQL_PASSWORD }}" \
+            -Q "${{ steps.parse.outputs.query }}" \
+            -C \
+            -W \
+            -s "," \
+            > output/query-result.txt 2>&1
+
+          echo "================================="
+          cat output/query-result.txt
+          echo "================================="
+
+      # ==========================================
+      # Upload Result Artifact
+      # ==========================================
+
+      - name: Upload Query Result Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sql-query-result
+          path: output/query-result.txt
+
+      # ==========================================
+      # Comment Back To Issue
+      # ==========================================
+
+      - name: Comment On Issue
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+
+            const body = `
+            ✅ SQL Query Executed Successfully
+
+            ### SQL Server
+            ${{ steps.parse.outputs.sql_server }}
+
+            ### Database
+            ${{ steps.parse.outputs.db_name }}
+
+            📦 Query result uploaded as workflow artifact:
+            \`sql-query-result\`
+            `
+
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: body
+            })
+
+      # ==========================================
+      # Add executed label
+      # ==========================================
+
+      - name: Add Executed Label
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+
+            github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ['executed']
+            })
