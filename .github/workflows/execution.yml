@@ -24,22 +24,19 @@ jobs:
         uses: actions/checkout@v4
       - name: Install SQLCMD
         run: |
-          sudo ACCEPT_EULA=Y apt-get update
-          sudo ACCEPT_EULA=Y apt-get install -y \
-            curl \
-            gnupg \
-            apt-transport-https
-          curl https://packages.microsoft.com/keys/microsoft.asc \
-            | gpg --dearmor --batch --yes \
-            | sudo tee  /usr/share/keyrings/microsoft-prod.gpg > /dev/null
-          curl https://packages.microsoft.com/config/ubuntu/22.04/prod.list \
-            | sudo tee /etc/apt/sources.list.d/msprod.list
+          sudo apt-get update
+          sudo ACCEPT_EULA=Y apt-get install -y curl apt-transport-https gnupg2
+          curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | \
+            sudo gpg --dearmor -o /
+            /usr/share/keyrings/microsoft.gpg
+          echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft.gpg] https://packages.microsoft.com/ubuntu/22.04/prod jammy main" | \
+            sudo tee /etc/apt/sources.list.d/mssql-release.list
           sudo apt-get update
           sudo ACCEPT_EULA=Y apt-get install -y \
-            mssql-tools18 \
-            unixodbc-dev
+            msodbcsql18 \
+            mssql-tools18
           echo "/opt/mssql-tools18/bin" >> $GITHUB_PATH
-
+          sqlcmd -?
       # ==========================================
       # Parse Issue Form
       # ==========================================
