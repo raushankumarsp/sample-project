@@ -1,0 +1,31 @@
+name: DB Query Execution 
+description: Execute query on Azure SQL DB
+title: "[DB-QUERY]: "
+labels:
+  - DB-QUERY
+
+body:
+  - type: input
+    id: sql_server
+    attributes:
+      label: SQL Server URL
+      placeholder: Enter Server URL on which you want to execute the queries
+    validations:
+      required: true
+
+  - type: input
+    id: database_name
+    attributes:
+      label: Database Name
+      placeholder: Enter DB Name
+    validations:
+      required: true
+
+  - type: textarea
+    id: sql_query
+    attributes:
+      label: SQL Query
+      placeholder: |
+       Enter your SQL queries here
+    validations:
+      required: true
