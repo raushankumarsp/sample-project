@@ -14,7 +14,8 @@ jobs:
   execute-query:
 
     # RUN ONLY IF LABEL = DB-QUERY
-    if: contains(github.event.issue.labels.*.name,'DB-QUERY')
+    #if: contains(github.event.issue.labels.*.name,'DB-QUERY')
+    if: startsWith(github.event.issue.title,'[DB-QUERY]')
 
     runs-on: ubuntu-latest
 
