@@ -1,6 +1,8 @@
 name: Execute Azure SQL Query
 
 on:
+  push:
+    branches: main
   issues:
     types:
       - labeled
