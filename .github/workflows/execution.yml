@@ -16,7 +16,7 @@ jobs:
   execute-query:
 
     # RUN ONLY IF LABEL = DB-QUERY
-    if: github.event.issue.labels.name =='DB-QUERY'
+    if: github.event.label.name =='DB-QUERY'
 
     runs-on: ubuntu-latest
 
