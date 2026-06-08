@@ -3,7 +3,7 @@ name: Execute Azure SQL Query
 on:
   issues:
     types:
-      - labeled
+      - opened
 
 permissions:
   contents: read
