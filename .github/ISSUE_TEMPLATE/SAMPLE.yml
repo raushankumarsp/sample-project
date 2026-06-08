@@ -1,8 +1,7 @@
 name: DB Query Execution 
 description: Execute query on Azure SQL DB
 title: "[DB-QUERY]: "
-labels:
-  - DB-QUERY
+labels: DB-QUERY
 
 body:
   - type: input
