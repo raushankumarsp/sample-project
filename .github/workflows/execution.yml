@@ -72,6 +72,13 @@ jobs:
         run: |
           mkdir -p output
           echo "Executing Query..."
+          echo "Sql server: $SQL_SERVER"
+          echo "db name: $DB_NAME"
+          echo " $QUERY: $QUERY"
+          echo "server=${{ steps.parse.outputs.sql_server }}"
+          echo "server=${{ steps.parse.outputs.db_name }}"
+          echo "server=${{ steps.parse.outputs.query }}"
+          
           sqlcmd \
             -S "${{ steps.parse.outputs.sql_server }}" \
             -d "${{ steps.parse.outputs.db_name }}" \
