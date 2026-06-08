@@ -17,7 +17,7 @@ jobs:
     #if: contains(github.event.issue.labels.*.name,'DB-QUERY')
     if: startsWith(github.event.issue.title,'[DB-QUERY]')
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout Repository
@@ -26,11 +26,9 @@ jobs:
         run: |
           sudo apt-get update
           sudo ACCEPT_EULA=Y apt-get install -y curl apt-transport-https gnupg2
-          curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | \
-            sudo gpg --dearmor -o /
+          curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | sudo gpg --dearmor --batch --yes -o /
             /usr/share/keyrings/microsoft.gpg
-          echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft.gpg] https://packages.microsoft.com/ubuntu/22.04/prod jammy main" | \
-            sudo tee /etc/apt/sources.list.d/mssql-release.list
+          echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft.gpg] https://packages.microsoft.com/ubuntu/22.04/prod jammy main" | sudo tee /etc/apt/sources.list.d/mssql-release.list
           sudo apt-get update
           sudo ACCEPT_EULA=Y apt-get install -y \
             msodbcsql18 \
