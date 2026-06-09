@@ -46,16 +46,12 @@ jobs:
           echo "================================="
           echo "$BODY"
           echo "================================="
-          SQL_SERVER=$(echo "$BODY" \
-            | grep "SQL Server URL" -A1 \
-            | tail -n1 \
-            | xargs)
-          DB_NAME=$(echo "$BODY" \
-            | grep "Database Name" -A1 \
-            | tail -n1 \
-            | xargs)
-          QUERY=$(echo "$BODY" \
-            | awk '/SQL Query/{flag=1;next}/###/{flag=0}flag')
+          SQL_SERVER=$(echo "$BODY" | awk '/SQL Server URL/{getline; getline; print}' | xargs)
+          DB_NAME=$(echo "$BODY" | awk '/Database Name/{getline; getline; print}' | xargs)
+          QUERY=$(echo "$BODY" | awk '/SQL Query/{getline; getline; print}' | xargs)
+          echo "PARSED SQL_SERVER=$SQL_SERVER"
+          echo "PARSED DB_NAME=$DB_NAME"
+          echo "PARSED QUERY=$QUERY"
           echo "sql_server=$SQL_SERVER" >> $GITHUB_OUTPUT
           echo "db_name=$DB_NAME" >> $GITHUB_OUTPUT
           echo "query<<EOF" >> $GITHUB_OUTPUT
