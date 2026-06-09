@@ -74,10 +74,10 @@ jobs:
           echo "Executing Query..."
           echo "Sql_server: $SQL_SERVER"
           echo "db_name: $DB_NAME"
-          echo " $QUERY: $QUERY"
+          echo " QUERY: $QUERY"
           echo "server_name=${{ steps.parse.outputs.sql_server }}"
-          echo "database=${{ steps.parse.outputs.db_name }}"
           echo "queries=${{ steps.parse.outputs.query }}"
+          echo "database=${{ steps.parse.outputs.db_name }}"
           
           sqlcmd \
             -S "${{ steps.parse.outputs.sql_server }}" \
